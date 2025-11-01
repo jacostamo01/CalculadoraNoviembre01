@@ -3,12 +3,8 @@ services:
   - type: static
     name: frontend-app
     rootDir: frontend
-    # Si es HTML/JS puro sin build, comenta la línea de buildCommand
-    # buildCommand: "npm ci && npm run build"
-    # Si NO hay build, publica directamente la carpeta (debe contener index.html)
-    staticPublishPath: "."
-    # Si tu front es Vite/React, cambia staticPublishPath a "dist" o "build"
-    # y descomenta buildCommand
+    # buildCommand: "npm ci && npm run build"   # si usas SPA (Vite/React)
+    staticPublishPath: "."                      # si es HTML/JS puro con index.html
 
   # ===================== SUMA =====================
   - type: web
@@ -148,7 +144,7 @@ services:
     name: ms-div-path
     env: node
     plan: free
-    rootDir: services/division-path
+    rootDir: services/div-path
     buildCommand: "npm ci"
     startCommand: "node DivisionPathParams.js"
     autoDeploy: true
@@ -170,7 +166,7 @@ services:
       - key: NODE_ENV
         value: production
 
-  # ===================== LOGGER / BD =====================
+  # ===================== LOGGER / BD (Postgres Render) =====================
   - type: web
     name: ms-logs
     env: node
@@ -183,16 +179,12 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      # ==== Variables de BD (MySQL externo) ====
-      - key: DB_HOST
-        value: your-mysql-host
-      - key: DB_PORT
-        value: "3306"
-      - key: DB_USER
-        value: root
-      - key: DB_PASSWORD
-        value: root
-      - key: DB_NAME
-        value: backend_ms
-      - key: DB_SSL
-        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pg-logs
+          property: connectionString
+
+# ===================== BASE DE DATOS POSTGRES (Render) =====================
+databases:
+  - name: pg-logs
+    plan: free
