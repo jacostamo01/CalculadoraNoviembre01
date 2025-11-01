@@ -1,0 +1,410 @@
+openapi: 3.0.3
+info:
+  title: Microservicios Aritméticos + Logger (Render)
+  version: "1.0.0"
+  description: >
+    Documentación de 12 microservicios (Suma, Resta, Multiplicación, División en modos query/path/body) y Logger (CRUD BD).
+    Selecciona el **server** correspondiente a cada microservicio en el desplegable "Servers" de Swagger UI.
+
+servers:
+  # ====== Suma ======
+  - url: https://ms-suma-query.onrender.com
+    description: ms-suma-query
+  - url: https://ms-suma-path.onrender.com
+    description: ms-suma-path
+  - url: https://ms-suma-body.onrender.com
+    description: ms-suma-body
+  # ====== Resta ======
+  - url: https://ms-resta-query.onrender.com
+    description: ms-resta-query
+  - url: https://ms-resta-path.onrender.com
+    description: ms-resta-path
+  - url: https://ms-resta-body.onrender.com
+    description: ms-resta-body
+  # ====== Multiplicación ======
+  - url: https://ms-mult-query.onrender.com
+    description: ms-mult-query
+  - url: https://ms-mult-path.onrender.com
+    description: ms-mult-path
+  - url: https://ms-mult-body.onrender.com
+    description: ms-mult-body
+  # ====== División ======
+  - url: https://ms-div-query.onrender.com
+    description: ms-div-query
+  - url: https://ms-div-path.onrender.com
+    description: ms-div-path
+  - url: https://ms-div-body.onrender.com
+    description: ms-div-body
+  # ====== Logger / BD ======
+  - url: https://ms-logs.onrender.com
+    description: ms-logs (Logger/BD)
+
+tags:
+  - name: Suma
+  - name: Resta
+  - name: Multiplicación
+  - name: División
+  - name: Salud
+  - name: Logger
+
+paths:
+  # ======================= Operaciones Aritméticas (GENÉRICO) =======================
+  /sumar:
+    get:
+      tags: [Suma]
+      summary: Suma por Query Params (num1/num2 o Num1/Num2)
+      parameters:
+        - $ref: '#/components/parameters/qNum1'
+        - $ref: '#/components/parameters/qNum2'
+      responses:
+        '200': { $ref: '#/components/responses/OperationOk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+    post:
+      tags: [Suma]
+      summary: Suma por Body JSON
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NumberBody' }
+            examples:
+              ejemplo:
+                value: { num1: 5, num2: 7 }
+      responses:
+        '200': { $ref: '#/components/responses/OperationOk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /sumar/{Num1}/{Num2}:
+    get:
+      tags: [Suma]
+      summary: Suma por Path Params
+      parameters:
+        - $ref: '#/components/parameters/pNum1'
+        - $ref: '#/components/parameters/pNum2'
+      responses:
+        '200': { $ref: '#/components/responses/OperationOk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /restar:
+    get:
+      tags: [Resta]
+      summary: Resta por Query Params
+      parameters:
+        - $ref: '#/components/parameters/qNum1'
+        - $ref: '#/components/parameters/qNum2'
+      responses:
+        '200': { $ref: '#/components/responses/OperationOk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+    post:
+      tags: [Resta]
+      summary: Resta por Body JSON
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NumberBody' }
+      responses:
+        '200': { $ref: '#/components/responses/OperationOk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /restar/{Num1}/{Num2}:
+    get:
+      tags: [Resta]
+      summary: Resta por Path Params
+      parameters:
+        - $ref: '#/components/parameters/pNum1'
+        - $ref: '#/components/parameters/pNum2'
+      responses:
+        '200': { $ref: '#/components/responses/OperationOk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /multiplicar:
+    get:
+      tags: [Multiplicación]
+      summary: Multiplicación por Query Params
+      parameters:
+        - $ref: '#/components/parameters/qNum1'
+        - $ref: '#/components/parameters/qNum2'
+      responses:
+        '200': { $ref: '#/components/responses/OperationOk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+    post:
+      tags: [Multiplicación]
+      summary: Multiplicación por Body JSON
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NumberBody' }
+      responses:
+        '200': { $ref: '#/components/responses/OperationOk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /multiplicar/{Num1}/{Num2}:
+    get:
+      tags: [Multiplicación]
+      summary: Multiplicación por Path Params
+      parameters:
+        - $ref: '#/components/parameters/pNum1'
+        - $ref: '#/components/parameters/pNum2'
+      responses:
+        '200': { $ref: '#/components/responses/OperationOk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /dividir:
+    get:
+      tags: [División]
+      summary: División por Query Params
+      parameters:
+        - $ref: '#/components/parameters/qNum1'
+        - $ref: '#/components/parameters/qNum2'
+      responses:
+        '200': { $ref: '#/components/responses/OperationOk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+    post:
+      tags: [División]
+      summary: División por Body JSON
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NumberBody' }
+      responses:
+        '200': { $ref: '#/components/responses/OperationOk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /dividir/{Num1}/{Num2}:
+    get:
+      tags: [División]
+      summary: División por Path Params
+      parameters:
+        - $ref: '#/components/parameters/pNum1'
+        - $ref: '#/components/parameters/pNum2'
+      responses:
+        '200': { $ref: '#/components/responses/OperationOk' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  # ======================= Salud genérica =======================
+  /health:
+    get:
+      tags: [Salud]
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+
+  # ======================= Logger / BD =======================
+  /ops/log:
+    get:
+      tags: [Logger]
+      summary: Listar logs
+      parameters:
+        - name: op
+          in: query
+          schema: { type: string }
+          description: Filtra por operación (ej. SUMA, RESTA, MULT, DIV, CRUD)
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 200, default: 20 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/LogRecord' }
+                  meta:
+                    type: object
+                    properties:
+                      page: { type: integer, example: 1 }
+                      limit: { type: integer, example: 20 }
+
+    post:
+      tags: [Logger]
+      summary: Crear log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LogCreate' }
+      responses:
+        '201':
+          description: Creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+                  message: { type: string, example: Log registrado }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /ops/log/{id}:
+    get:
+      tags: [Logger]
+      summary: Obtener log por id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+                  data: { $ref: '#/components/schemas/LogRecord' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+    delete:
+      tags: [Logger]
+      summary: Eliminar log por id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '204':
+          description: Eliminado (sin contenido)
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /ping:
+    get:
+      tags: [Logger]
+      summary: Ping simple
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+                  message: { type: string, example: Logger activo }
+
+components:
+  parameters:
+    qNum1:
+      name: num1
+      in: query
+      schema: { type: number }
+      required: false
+      description: Alias aceptados por los MS (num1 o Num1)
+    qNum2:
+      name: num2
+      in: query
+      schema: { type: number }
+      required: false
+      description: Alias aceptados por los MS (num2 o Num2)
+    pNum1:
+      name: Num1
+      in: path
+      required: true
+      schema: { type: number }
+    pNum2:
+      name: Num2
+      in: path
+      required: true
+      schema: { type: number }
+
+  schemas:
+    NumberBody:
+      type: object
+      properties:
+        num1: { type: number, example: 10 }
+        num2: { type: number, example: 5 }
+      required: [num1, num2]
+
+    OperationResponse:
+      type: object
+      properties:
+        ok: { type: boolean, example: true }
+        op: { type: string, example: SUMA }
+        num1: { type: number, example: 10 }
+        num2: { type: number, example: 5 }
+        result: { type: number, example: 15 }
+
+    ErrorResponse:
+      type: object
+      properties:
+        ok: { type: boolean, example: false }
+        error: { type: string, example: "Parámetros inválidos (num1/num2)" }
+
+    LogRecord:
+      type: object
+      properties:
+        id: { type: integer, example: 123 }
+        op: { type: string, example: SUMA }
+        num1: { type: number, nullable: true, example: 10 }
+        num2: { type: number, nullable: true, example: 5 }
+        result: { type: number, nullable: true, example: 15 }
+        source: { type: string, example: ms }
+        endpoint: { type: string, example: /sumar }
+        method: { type: string, example: POST }
+        status_code: { type: integer, example: 200 }
+        client_ip: { type: string, nullable: true, example: "10.1.2.3" }
+        created_at: { type: string, format: date-time, example: "2025-10-31T15:04:05.000Z" }
+        payload_json:
+          oneOf:
+            - type: string
+            - type: object
+            - type: "null"
+
+    LogCreate:
+      type: object
+      properties:
+        op: { type: string, example: SUMA }
+        num1: { type: number, nullable: true, example: 2 }
+        num2: { type: number, nullable: true, example: 3 }
+        result: { type: number, nullable: true, example: 5 }
+        source: { type: string, example: front }
+        endpoint: { type: string, example: /sumar }
+        method: { type: string, example: POST }
+        status_code: { type: integer, example: 200 }
+        payload:
+          description: JSON arbitrario
+          oneOf:
+            - type: object
+            - type: array
+            - type: string
+            - type: "null"
+
+  responses:
+    OperationOk:
+      description: Operación exitosa
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/OperationResponse' }
+    BadRequest:
+      description: Error de cliente / parámetros inválidos
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    NotFound:
+      description: No encontrado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok: { type: boolean, example: false }
+              error: { type: string, example: "No encontrado" }
