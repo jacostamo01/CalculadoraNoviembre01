@@ -189,9 +189,9 @@ services:
       - key: DB_PORT
         value: "3306"
       - key: DB_USER
-        value: your-user
+        value: root
       - key: DB_PASSWORD
-        value: your-password
+        value: root
       - key: DB_NAME
         value: backend_ms
       - key: DB_SSL
