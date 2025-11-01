@@ -1,0 +1,7 @@
+{
+  "name": "ms-resta-query",
+  "version": "1.0.0",
+  "main": "RestaQueryParams.js",
+  "scripts": { "start": "node RestaQueryParams.js" },
+  "dependencies": {}
+}

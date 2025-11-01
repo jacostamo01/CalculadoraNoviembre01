@@ -1,0 +1,7 @@
+{
+  "name": "ms-mult-path",
+  "version": "1.0.0",
+  "main": "MultiplicacionPathParams.js",
+  "scripts": { "start": "node MultiplicacionPathParams.js" },
+  "dependencies": {}
+}

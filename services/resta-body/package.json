@@ -1,0 +1,7 @@
+{
+  "name": "ms-resta-body",
+  "version": "1.0.0",
+  "main": "RestaBodyParams.js",
+  "scripts": { "start": "node RestaBodyParams.js" },
+  "dependencies": {}
+}

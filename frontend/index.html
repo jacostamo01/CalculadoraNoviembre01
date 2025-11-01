@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Microservicios Aritméticos + Logger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; background:#f6f8fa; color:#222; margin:0; padding:1rem; }
+    h1 { margin-bottom:.5rem; }
+    .card { background:#fff; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.1); padding:1rem 1.5rem; margin-bottom:1rem; }
+    label { display:block; margin:.4rem 0 .2rem; font-weight:600; }
+    input, select, textarea { width:100%; padding:.5rem; border:1px solid #ccc; border-radius:6px; font-size:.95rem; }
+    textarea { resize:vertical; min-height:60px; }
+    button { background:#0366d6; color:#fff; border:none; padding:.6rem 1.2rem; border-radius:6px; cursor:pointer; font-weight:600; }
+    button:hover { background:#024ea4; }
+    pre { background:#f0f0f0; padding:1rem; border-radius:8px; overflow:auto; font-size:.9rem; }
+    table { width:100%; border-collapse:collapse; margin-top:.5rem; }
+    th, td { padding:.5rem; border-bottom:1px solid #ddd; text-align:left; font-size:.92rem; }
+    tr:hover { background:#f9f9f9; }
+    .flex { display:flex; gap:.5rem; align-items:center; }
+    .row { display:flex; gap:1rem; flex-wrap:wrap; }
+    .col { flex:1 1 180px; min-width:180px; }
+    .inline { display:inline-flex; align-items:center; gap:.35rem; }
+    .muted { color:#666; font-size:.9rem; }
+    .danger { background:#c62828 !important; }
+    .danger:hover { background:#9a1f1f !important; }
+    .ghost { background:#e9edf3; color:#1f2937; }
+  </style>
+</head>
+<body>
+  <h1>Microservicios Aritméticos</h1>
+
+  <!-- =================== OPERACIONES =================== -->
+  <div class="card">
+    <h2>Operar</h2>
+    <div class="row">
+      <div class="col">
+        <label>Operación</label>
+        <select id="operacion">
+          <option value="SUMA">Suma</option>
+          <option value="RESTA">Resta</option>
+          <option value="MULT">Multiplicación</option>
+          <option value="DIV">División</option>
+        </select>
+      </div>
+
+      <div class="col">
+        <label>Modo</label>
+        <select id="modo">
+          <option value="query">Query Params</option>
+          <option value="path">Path Params</option>
+          <option value="body">Body JSON</option>
+        </select>
+      </div>
+
+      <div class="col">
+        <label>Base URL del microservicio seleccionado</label>
+        <input id="baseUrl" placeholder="https://ms-suma-body.onrender.com" />
+        <div class="muted">Ej.: pega aquí la URL del microservicio actual (según Operación + Modo)</div>
+      </div>
+
+      <div class="col">
+        <label>Num1</label>
+        <input id="num1" type="number" />
+      </div>
+
+      <div class="col">
+        <label>Num2</label>
+        <input id="num2" type="number" />
+      </div>
+
+      <div style="align-self:flex-end">
+        <button id="btnCalcular">Calcular</button>
+      </div>
+    </div>
+
+    <h3>Resultado</h3>
+    <pre id="resultado">—</pre>
+  </div>
+
+  <!-- =================== LOGS =================== -->
+  <div class="card">
+    <h2>Logs (BD)</h2>
+
+    <div class="row" style="align-items:flex-end;">
+      <div class="col" style="max-width:420px;">
+        <label>Base URL del Logger</label>
+        <input id="baseLogger" placeholder="https://ms-logs.onrender.com" />
+        <div class="muted">Usado para /ops/log y /health</div>
+      </div>
+
+      <div class="col" style="max-width:250px;">
+        <label>Actualización</label>
+        <div class="flex">
+          <label class="inline"><input type="checkbox" id="autoRefresh"> Auto-actualizar</label>
+          <select id="autoEvery" title="Intervalo fijo">
+            <option value="3000">3s</option>
+            <option value="5000" selected>5s</option>
+            <option value="10000">10s</option>
+            <option value="30000">30s</option>
+          </select>
+          <label class="inline" style="margin-left:.5rem;" title="Seguimiento adaptativo">
+            <input type="checkbox" id="instantRefresh"> Actualización instantánea
+          </label>
+        </div>
+      </div>
+
+      <div style="align-self:flex-end; margin-left:auto;">
+        <button id="btnActualizar" class="ghost">Actualizar</button>
+      </div>
+    </div>
+
+    <table id="tablaLogs">
+      <thead>
+        <tr>
+          <th>ID</th><th>OP</th><th>Num1</th><th>Num2</th><th>Result</th>
+          <th>Endpoint</th><th>Método</th><th>Fuente</th><th>Status</th><th>Fecha</th><th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- =================== AGREGAR LOG MANUAL =================== -->
+  <div class="card">
+    <h2>Agregar log manual</h2>
+    <div class="row">
+      <div class="col">
+        <label>OP</label>
+        <select id="mOp">
+          <option value="MANUAL">MANUAL</option>
+          <option value="SUM">SUM</option>
+          <option value="RES">RES</option>
+          <option value="MULT">MULT</option>
+          <option value="DIV">DIV</option>
+        </select>
+      </div>
+      <div class="col"><label>num1</label><input id="mNum1" type="number" value="0" /></div>
+      <div class="col"><label>num2</label><input id="mNum2" type="number" value="0" /></div>
+      <div class="col"><label>result</label><input id="mResult" type="number" value="0" /></div>
+      <div class="col"><label>endpoint</label><input id="mEndpoint" placeholder="/manual" /></div>
+      <div class="col" style="max-width:140px;"><label>method</label>
+        <select id="mMethod"><option>GET</option><option selected>POST</option><option>DELETE</option></select>
+      </div>
+      <div class="col" style="max-width:140px;"><label>status_code</label><input id="mStatus" type="number" value="200" /></div>
+      <div class="col" style="max-width:180px;"><label>source</label><input id="mSource" value="front" /></div>
+    </div>
+    <label style="margin-top:.5rem;">Payload JSON (opcional)</label>
+    <textarea id="mPayload" placeholder='{"detalle":"prueba manual"}'></textarea>
+
+    <div class="flex" style="justify-content:flex-end; margin-top:.5rem;">
+      <button id="btnAgregarLog">Agregar log</button>
+    </div>
+  </div>
+
+  <script>
+    const el = id => document.getElementById(id);
+
+    // ===== DOM refs =====
+    const opSel = el('operacion'), modeSel = el('modo'), baseUrlInp = el('baseUrl'),
+          n1Inp = el('num1'), n2Inp = el('num2'), resBox = el('resultado');
+    const baseLoggerInp = el('baseLogger'),
+          autoRefresh = el('autoRefresh'), autoEvery = el('autoEvery'),
+          instantRefresh = el('instantRefresh');
+    const tablaLogs = el('tablaLogs').querySelector('tbody');
+
+    // manual form
+    const mOp = el('mOp'), mNum1 = el('mNum1'), mNum2 = el('mNum2'),
+          mResult = el('mResult'), mEndpoint = el('mEndpoint'),
+          mMethod = el('mMethod'), mStatus = el('mStatus'),
+          mSource = el('mSource'), mPayload = el('mPayload');
+
+    // ===== Paths por operación (sin puertos) =====
+    const map = {
+      SUMA: { query:{basePath:'/sumar'}, path:{basePath:'/sumar'}, body:{basePath:'/sumar'} },
+      RESTA:{ query:{basePath:'/restar'}, path:{basePath:'/restar'}, body:{basePath:'/restar'} },
+      MULT: { query:{basePath:'/multiplicar'}, path:{basePath:'/multiplicar'}, body:{basePath:'/multiplicar'} },
+      DIV:  { query:{basePath:'/dividir'}, path:{basePath:'/dividir'}, body:{basePath:'/dividir'} }
+    };
+
+    function loggerBase() {
+      const base = (baseLoggerInp.value || '').trim();
+      if (!base) throw new Error('Configura la Base URL del Logger');
+      return base.replace(/\/+$/,'');
+    }
+
+    function svcBase() {
+      const base = (baseUrlInp.value || '').trim();
+      if (!base) throw new Error('Configura la Base URL del microservicio seleccionado');
+      return base.replace(/\/+$/,'');
+    }
+
+    function pad(n){ return String(n).padStart(2,'0'); }
+    function ajustarHora(fechaIso){
+      if(!fechaIso) return '';
+      const d = new Date(fechaIso);
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    // ===== Logs =====
+    async function cargarLogs(renderEvenIfSame = false) {
+      try {
+        const base = loggerBase();
+        const url = `${base}/ops/log?limit=20`;
+        const r = await fetch(url);
+        const j = await r.json();
+        if (!j.ok) throw new Error(j.error || 'Error cargando logs');
+
+        tablaLogs.innerHTML = (j.data || []).map(log => `
+          <tr>
+            <td>${log.id}</td>
+            <td>${log.op ?? ''}</td>
+            <td>${log.num1 ?? ''}</td>
+            <td>${log.num2 ?? ''}</td>
+            <td>${log.result ?? ''}</td>
+            <td>${log.endpoint ?? ''}</td>
+            <td>${log.method ?? ''}</td>
+            <td>${log.source ?? ''}</td>
+            <td>${log.status_code ?? ''}</td>
+            <td>${ajustarHora(log.created_at)}</td>
+            <td><button class="danger" onclick="borrarLog(${log.id})">🗑</button></td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tablaLogs.innerHTML = `<tr><td colspan="11">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function borrarLog(id) {
+      if (!confirm('¿Eliminar log #' + id + '?')) return;
+      try {
+        const r = await fetch(`${loggerBase()}/ops/log/${id}`, { method:'DELETE' });
+        if (r.status === 204) { await cargarLogs(true); }
+        else { const j = await r.json().catch(()=> ({})); alert('Error: ' + (j.error || r.status)); }
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+    window.borrarLog = borrarLog;
+
+    // ===== Operar =====
+    async function calcular() {
+      try {
+        const op = opSel.value, mode = modeSel.value;
+        const n1s = n1Inp.value.trim(), n2s = n2Inp.value.trim();
+        if (!n1s || !n2s) { resBox.textContent = 'Error: ingresa ambos números.'; return; }
+        const n1 = Number(n1s), n2 = Number(n2s);
+        if (Number.isNaN(n1) || Number.isNaN(n2)) { resBox.textContent = 'Error: valores inválidos.'; return; }
+
+        const { basePath } = map[op][mode];
+        const base = svcBase();
+        let url = `${base}${basePath}`;
+        let fetchOpts = { method: 'GET' };
+
+        if (mode === 'query') {
+          const qs = new URLSearchParams({ Num1: n1, Num2: n2, num1: n1, num2: n2 });
+          url = `${url}?${qs.toString()}`;
+        } else if (mode === 'path') {
+          url = `${url}/${encodeURIComponent(n1)}/${encodeURIComponent(n2)}`;
+        } else {
+          fetchOpts = { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ num1:n1, num2:n2 }) };
+        }
+
+        const r = await fetch(url);
+        const ct = r.headers.get('content-type') || '';
+        let data;
+        if (ct.includes('application/json')) data = await r.json(); else { const t = await r.text(); try { data = JSON.parse(t); } catch { data = t; } }
+        resBox.textContent = typeof data === 'string' ? data : JSON.stringify(data,null,2);
+
+        // refresco de logs (si configuraste ms-logs)
+        try { await cargarLogs(true); } catch {}
+      } catch (err) {
+        resBox.textContent = 'Error: ' + err.message;
+      }
+    }
+
+    // ===== Agregar log manual =====
+    async function agregarLogManual() {
+      let payload = null;
+      const txt = mPayload.value.trim();
+      if (txt) { try { payload = JSON.parse(txt); } catch { alert('Payload JSON inválido'); return; } }
+      const body = {
+        op: mOp.value,
+        num1: mNum1.value === '' ? null : Number(mNum1.value),
+        num2: mNum2.value === '' ? null : Number(mNum2.value),
+        result: mResult.value === '' ? null : Number(mResult.value),
+        source: mSource.value || 'front',
+        endpoint: mEndpoint.value || '/manual',
+        method: mMethod.value,
+        status_code: mStatus.value === '' ? 200 : Number(mStatus.value),
+        payload
+      };
+      try {
+        const r = await fetch(`${loggerBase()}/ops/log`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+        const ok = r.status === 201 || r.ok;
+        if (ok) { mPayload.value=''; await cargarLogs(true); return; }
+        const j = await r.json().catch(()=> ({})); alert('Error al insertar log: ' + (j.error || r.status));
+      } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    // ===== Auto/instant refresh opcional =====
+    let logsTimer = null;
+    function startAuto() { stopAuto(); logsTimer = setInterval(cargarLogs, Number(autoEvery.value) || 5000); }
+    function stopAuto() { if (logsTimer) clearInterval(logsTimer); logsTimer = null; }
+    autoRefresh.addEventListener('change', () => autoRefresh.checked ? startAuto() : stopAuto());
+    el('btnActualizar').addEventListener('click', () => cargarLogs(true));
+
+    el('btnCalcular').addEventListener('click', calcular);
+    el('btnAgregarLog').addEventListener('click', agregarLogManual);
+    [n1Inp, n2Inp].forEach(inp => inp.addEventListener('keydown', e => { if (e.key==='Enter') calcular(); }));
+
+    window.addEventListener('focus', () => cargarLogs(true));
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) cargarLogs(true); });
+
+    // Inicial
+    window.addEventListener('load', () => {
+      // Puedes precargar aquí tus URLs si quieres:
+      // baseUrlInp.value = "https://ms-suma-body.onrender.com";
+      // baseLoggerInp.value = "https://ms-logs.onrender.com";
+      cargarLogs(true);
+    });
+  </script>
+</body>
+</html>

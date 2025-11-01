@@ -1,0 +1,488 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Microservicios Aritméticos + CRUD/Logs – OpenAPI Unificado",
+    "version": "1.1.1",
+    "description": "12 microservicios (suma, resta, multiplicación, división) en puertos 3000–3011, más CRUD/Logs en puerto 4010."
+  },
+  "tags": [
+    { "name": "suma-query", "description": "Suma por query params (GET /sumar?Num1=&Num2=) – puerto 3000" },
+    { "name": "suma-path",  "description": "Suma por path params (GET /sumar/{Num1}/{Num2}) – puerto 3001" },
+    { "name": "suma-body",  "description": "Suma por body (POST /sumar) – puerto 3002" },
+    { "name": "resta-query","description": "Resta por query params (GET /restar?Num1=&Num2=) – puerto 3003" },
+    { "name": "resta-path", "description": "Resta por path params (GET /restar/{Num1}/{Num2}) – puerto 3004" },
+    { "name": "resta-body", "description": "Resta por body (POST /restar) – puerto 3005" },
+    { "name": "mult-query", "description": "Multiplicación por query params (GET /multiplicar?Num1=&Num2=) – puerto 3006" },
+    { "name": "mult-path",  "description": "Multiplicación por path params (GET /multiplicar/{Num1}/{Num2}) – puerto 3007" },
+    { "name": "mult-body",  "description": "Multiplicación por body (POST /multiplicar) – puerto 3008" },
+    { "name": "div-query",  "description": "División por query params (GET /dividir?Num1=&Num2=) – puerto 3009" },
+    { "name": "div-path",   "description": "División por path params (GET /dividir/{Num1}/{Num2}) – puerto 3010" },
+    { "name": "div-body",   "description": "División por body (POST /dividir) – puerto 3011" },
+    { "name": "crud",       "description": "CRUD de tabla records – puerto 4010" },
+    { "name": "logs",       "description": "Registro/consulta de operaciones – puerto 4010" }
+  ],
+  "components": {
+    "schemas": {
+      "Resultado": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean", "example": true },
+          "Dato1Enviado": { "type": "number", "example": 10 },
+          "Dato2Enviado": { "type": "number", "example": 3 },
+          "resultado": { "type": "number", "example": 13 }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean", "example": false },
+          "error": { "type": "string", "example": "Faltan parámetros" }
+        }
+      },
+      "Record": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64", "example": 1 },
+          "name": { "type": "string", "example": "Cafetera" },
+          "value_num": { "type": "number", "example": 150000 },
+          "notes": { "type": "string", "example": "Electrodoméstico" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "RecordCreate": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "maxLength": 160 },
+          "value_num": { "type": "number", "nullable": true },
+          "notes": { "type": "string", "nullable": true, "maxLength": 500 }
+        }
+      },
+      "RecordUpdate": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "maxLength": 160 },
+          "value_num": { "type": "number", "nullable": true },
+          "notes": { "type": "string", "nullable": true, "maxLength": 500 }
+        }
+      },
+      "OkCreated": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean", "example": true },
+          "id": { "type": "integer", "format": "int64", "example": 1 }
+        }
+      },
+      "OkUpdated": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean", "example": true },
+          "updated": { "type": "integer", "example": 1 }
+        }
+      },
+      "OkDataRecord": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean", "example": true },
+          "data": { "$ref": "#/components/schemas/Record" }
+        }
+      },
+      "PaginatedRecords": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean", "example": true },
+          "data": { "type": "array", "items": { "$ref": "#/components/schemas/Record" } },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "page": { "type": "integer", "example": 1 },
+              "limit": { "type": "integer", "example": 20 }
+            }
+          }
+        }
+      },
+      "LogEntry": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "op": { "type": "string", "enum": ["SUMA","RESTA","MULT","DIV","CRUD"] },
+          "num1": { "type": "number", "nullable": true },
+          "num2": { "type": "number", "nullable": true },
+          "result": { "type": "number", "nullable": true },
+          "source": { "type": "string", "enum": ["query","path","body","crud"] },
+          "endpoint": { "type": "string" },
+          "method": { "type": "string" },
+          "status_code": { "type": "integer" },
+          "client_ip": { "type": "string" },
+          "payload_json": { "type": "object", "additionalProperties": true, "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "LogCreate": {
+        "type": "object",
+        "properties": {
+          "op": { "type": "string", "enum": ["SUMA","RESTA","MULT","DIV","CRUD"], "default": "CRUD" },
+          "num1": { "type": "number", "nullable": true },
+          "num2": { "type": "number", "nullable": true },
+          "result": { "type": "number", "nullable": true },
+          "source": { "type": "string", "enum": ["query","path","body","crud"], "default": "crud" },
+          "endpoint": { "type": "string", "example": "/records" },
+          "method": { "type": "string", "example": "POST" },
+          "status_code": { "type": "integer", "example": 201 },
+          "payload": { "type": "object", "additionalProperties": true, "nullable": true }
+        }
+      },
+      "OkLog": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean", "example": true },
+          "message": { "type": "string", "example": "Log registrado" }
+        }
+      },
+      "PaginatedLogs": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean", "example": true },
+          "data": { "type": "array", "items": { "$ref": "#/components/schemas/LogEntry" } },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "page": { "type": "integer", "example": 1 },
+              "limit": { "type": "integer", "example": 20 }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/sumar": {
+      "get": {
+        "summary": "Suma (query params)",
+        "description": "Suma dos números usando query params.",
+        "tags": ["suma-query"],
+        "servers": [{ "url": "http://127.0.0.1:3000" }],
+        "parameters": [
+          { "name": "Num1", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Primer número" },
+          { "name": "Num2", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Segundo número" }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Resultado" } } } },
+          "400": { "description": "Solicitud inválida", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "post": {
+        "summary": "Suma (body)",
+        "description": "Suma dos números en el body.",
+        "tags": ["suma-body"],
+        "servers": [{ "url": "http://127.0.0.1:3002" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["num1","num2"],
+                "properties": { "num1": { "type": "number" }, "num2": { "type": "number" } }
+              },
+              "example": { "num1": 10, "num2": 3 }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Resultado" } } } },
+          "400": { "description": "Solicitud inválida", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/sumar/{Num1}/{Num2}": {
+      "get": {
+        "summary": "Suma (path params)",
+        "description": "Suma dos números por path.",
+        "tags": ["suma-path"],
+        "servers": [{ "url": "http://127.0.0.1:3001" }],
+        "parameters": [
+          { "name": "Num1", "in": "path", "required": true, "schema": { "type": "number" } },
+          { "name": "Num2", "in": "path", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Resultado" } } } },
+          "400": { "description": "Solicitud inválida", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/restar": {
+      "get": {
+        "summary": "Resta (query params)",
+        "description": "Resta dos números usando query params.",
+        "tags": ["resta-query"],
+        "servers": [{ "url": "http://127.0.0.1:3003" }],
+        "parameters": [
+          { "name": "Num1", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Primer número" },
+          { "name": "Num2", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Segundo número" }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Resultado" } } } },
+          "400": { "description": "Solicitud inválida", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "post": {
+        "summary": "Resta (body)",
+        "description": "Resta en el body.",
+        "tags": ["resta-body"],
+        "servers": [{ "url": "http://127.0.0.1:3005" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["num1","num2"],
+                "properties": { "num1": { "type": "number" }, "num2": { "type": "number" } }
+              },
+              "example": { "num1": 10, "num2": 3 }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Resultado" } } } },
+          "400": { "description": "Solicitud inválida", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/restar/{Num1}/{Num2}": {
+      "get": {
+        "summary": "Resta (path params)",
+        "description": "Resta por path.",
+        "tags": ["resta-path"],
+        "servers": [{ "url": "http://127.0.0.1:3004" }],
+        "parameters": [
+          { "name": "Num1", "in": "path", "required": true, "schema": { "type": "number" } },
+          { "name": "Num2", "in": "path", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Resultado" } } } },
+          "400": { "description": "Solicitud inválida", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/multiplicar": {
+      "get": {
+        "summary": "Multiplicación (query params)",
+        "description": "Multiplica por query.",
+        "tags": ["mult-query"],
+        "servers": [{ "url": "http://127.0.0.1:3006" }],
+        "parameters": [
+          { "name": "Num1", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Primer número" },
+          { "name": "Num2", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Segundo número" }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Resultado" } } } },
+          "400": { "description": "Solicitud inválida", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "post": {
+        "summary": "Multiplicación (body)",
+        "description": "Multiplica en el body.",
+        "tags": ["mult-body"],
+        "servers": [{ "url": "http://127.0.0.1:3008" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["num1","num2"],
+                "properties": { "num1": { "type": "number" }, "num2": { "type": "number" } }
+              },
+              "example": { "num1": 10, "num2": 3 }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Resultado" } } } },
+          "400": { "description": "Solicitud inválida", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/multiplicar/{Num1}/{Num2}": {
+      "get": {
+        "summary": "Multiplicación (path params)",
+        "description": "Multiplica por path.",
+        "tags": ["mult-path"],
+        "servers": [{ "url": "http://127.0.0.1:3007" }],
+        "parameters": [
+          { "name": "Num1", "in": "path", "required": true, "schema": { "type": "number" } },
+          { "name": "Num2", "in": "path", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Resultado" } } } },
+          "400": { "description": "Solicitud inválida", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/dividir": {
+      "get": {
+        "summary": "División (query params)",
+        "description": "Divide por query.",
+        "tags": ["div-query"],
+        "servers": [{ "url": "http://127.0.0.1:3009" }],
+        "parameters": [
+          { "name": "Num1", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Primer número" },
+          { "name": "Num2", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Segundo número" }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Resultado" } } } },
+          "400": { "description": "Solicitud inválida", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "post": {
+        "summary": "División (body)",
+        "description": "Divide en el body.",
+        "tags": ["div-body"],
+        "servers": [{ "url": "http://127.0.0.1:3011" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["num1","num2"],
+                "properties": { "num1": { "type": "number" }, "num2": { "type": "number" } }
+              },
+              "example": { "num1": 10, "num2": 3 }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Resultado" } } } },
+          "400": { "description": "Solicitud inválida", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/dividir/{Num1}/{Num2}": {
+      "get": {
+        "summary": "División (path params)",
+        "description": "Divide por path.",
+        "tags": ["div-path"],
+        "servers": [{ "url": "http://127.0.0.1:3010" }],
+        "parameters": [
+          { "name": "Num1", "in": "path", "required": true, "schema": { "type": "number" } },
+          { "name": "Num2", "in": "path", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Resultado" } } } },
+          "400": { "description": "Solicitud inválida", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/records": {
+      "get": {
+        "summary": "Listar records",
+        "tags": ["crud"],
+        "servers": [{ "url": "http://127.0.0.1:4010" }],
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 200, "default": 20 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PaginatedRecords" } } }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear record",
+        "tags": ["crud"],
+        "servers": [{ "url": "http://127.0.0.1:4010" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RecordCreate" } } } },
+        "responses": {
+          "201": { "description": "Creado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OkCreated" } } } }
+          }
+      }
+    },
+    "/records/{id}": {
+      "get": {
+        "summary": "Obtener record por id",
+        "tags": ["crud"],
+        "servers": [{ "url": "http://127.0.0.1:4010" }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OkDataRecord" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "put": {
+        "summary": "Reemplazar record",
+        "tags": ["crud"],
+        "servers": [{ "url": "http://127.0.0.1:4010" }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RecordCreate" } } } },
+        "responses": {
+          "200": { "description": "Actualizado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OkUpdated" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar parcialmente record",
+        "tags": ["crud"],
+        "servers": [{ "url": "http://127.0.0.1:4010" }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RecordUpdate" } } } },
+        "responses": {
+          "200": { "description": "Actualizado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OkUpdated" } } } },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar record",
+        "tags": ["crud"],
+        "servers": [{ "url": "http://127.0.0.1:4010" }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }],
+        "responses": {
+          "204": { "description": "Eliminado" },
+          "404": { "description": "No encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/ops/log": {
+      "get": {
+        "summary": "Consultar logs de operaciones",
+        "tags": ["logs"],
+        "servers": [{ "url": "http://127.0.0.1:4010" }],
+        "parameters": [
+          { "name": "op", "in": "query", "schema": { "type": "string", "enum": ["SUMA","RESTA","MULT","DIV","CRUD"] } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 200, "default": 20 } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PaginatedLogs" } } } }
+        }
+      },
+      "post": {
+        "summary": "Registrar log de operación",
+        "tags": ["logs"],
+        "servers": [{ "url": "http://127.0.0.1:4010" }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LogCreate" } } } },
+        "responses": {
+          "201": { "description": "Registrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OkLog" } } } }
+        }
+      }
+    }
+  }
+}

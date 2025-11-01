@@ -1,0 +1,198 @@
+services:
+  # ===================== FRONTEND (Static Site) =====================
+  - type: static
+    name: frontend-app
+    rootDir: frontend
+    # Si es HTML/JS puro sin build, comenta la línea de buildCommand
+    # buildCommand: "npm ci && npm run build"
+    # Si NO hay build, publica directamente la carpeta (debe contener index.html)
+    staticPublishPath: "."
+    # Si tu front es Vite/React, cambia staticPublishPath a "dist" o "build"
+    # y descomenta buildCommand
+
+  # ===================== SUMA =====================
+  - type: web
+    name: ms-suma-body
+    env: node
+    plan: free
+    rootDir: services/suma-body
+    buildCommand: "npm ci"
+    startCommand: "node SumaBodyParams.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: ms-suma-path
+    env: node
+    plan: free
+    rootDir: services/suma-path
+    buildCommand: "npm ci"
+    startCommand: "node SumaPathParams.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: ms-suma-query
+    env: node
+    plan: free
+    rootDir: services/suma-query
+    buildCommand: "npm ci"
+    startCommand: "node SumaQueryParams.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  # ===================== RESTA =====================
+  - type: web
+    name: ms-resta-body
+    env: node
+    plan: free
+    rootDir: services/resta-body
+    buildCommand: "npm ci"
+    startCommand: "node RestaBodyParams.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: ms-resta-path
+    env: node
+    plan: free
+    rootDir: services/resta-path
+    buildCommand: "npm ci"
+    startCommand: "node RestaPathParams.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: ms-resta-query
+    env: node
+    plan: free
+    rootDir: services/resta-query
+    buildCommand: "npm ci"
+    startCommand: "node RestaQueryParams.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  # ===================== MULTIPLICACIÓN =====================
+  - type: web
+    name: ms-mult-body
+    env: node
+    plan: free
+    rootDir: services/mult-body
+    buildCommand: "npm ci"
+    startCommand: "node MultiplicacionBodyParams.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: ms-mult-path
+    env: node
+    plan: free
+    rootDir: services/mult-path
+    buildCommand: "npm ci"
+    startCommand: "node MultiplicacionPathParams.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: ms-mult-query
+    env: node
+    plan: free
+    rootDir: services/mult-query
+    buildCommand: "npm ci"
+    startCommand: "node MultiplicacionQueryParams.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  # ===================== DIVISIÓN =====================
+  - type: web
+    name: ms-div-body
+    env: node
+    plan: free
+    rootDir: services/div-body
+    buildCommand: "npm ci"
+    startCommand: "node DivisionBodyParams.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: ms-div-path
+    env: node
+    plan: free
+    rootDir: services/division-path
+    buildCommand: "npm ci"
+    startCommand: "node DivisionPathParams.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: ms-div-query
+    env: node
+    plan: free
+    rootDir: services/div-query
+    buildCommand: "npm ci"
+    startCommand: "node DivisionQueryParams.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  # ===================== LOGGER / BD =====================
+  - type: web
+    name: ms-logs
+    env: node
+    plan: free
+    rootDir: services/logs
+    buildCommand: "npm ci"
+    startCommand: "node server.js"
+    autoDeploy: true
+    healthCheckPath: "/health"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # ==== Variables de BD (MySQL externo) ====
+      - key: DB_HOST
+        value: your-mysql-host
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_USER
+        value: your-user
+      - key: DB_PASSWORD
+        value: your-password
+      - key: DB_NAME
+        value: backend_ms
+      - key: DB_SSL
+        value: "false"

@@ -1,0 +1,250 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Calculadora con microservicios (Query, Path, Body)",
+    "version": "1.0.0",
+    "description": "Home para probar Suma, Resta, Multiplicación y División por query params, path params y body JSON. Cada operación tiene un puerto específico"
+  },
+  "tags": [
+    { "name": "Suma" },
+    { "name": "Resta" },
+    { "name": "Multiplicación" },
+    { "name": "División" }
+  ],
+  "paths": {
+    "/sumar": {
+      "get": {
+        "tags": ["Suma"],
+        "summary": "Suma por query params",
+        "description": "GET /sumar?num1=&num2= en 127.0.0.1:3000",
+        "servers": [{ "url": "http://127.0.0.1:3000" }],
+        "parameters": [
+          { "name": "num1", "in": "query", "required": true, "schema": { "type": "number" } },
+          { "name": "num2", "in": "query", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpQueryResponse" } } } },
+          "400": { "description": "Parámetros inválidos", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Ruta no encontrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "405": { "description": "Método no permitido", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Suma"],
+        "summary": "Suma por body JSON",
+        "description": "POST /sumar en 127.0.0.1:3002",
+        "servers": [{ "url": "http://127.0.0.1:3002" }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpBodyRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpBodyResponse" } } } },
+          "400": { "description": "JSON o parámetros inválidos", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "405": { "description": "Método no permitido (si se intenta GET en esta ruta body)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/sumar/{num1}/{num2}": {
+      "get": {
+        "tags": ["Suma"],
+        "summary": "Suma por path params",
+        "description": "GET /sumar/{num1}/{num2} en 127.0.0.1:3001",
+        "servers": [{ "url": "http://127.0.0.1:3001" }],
+        "parameters": [
+          { "name": "num1", "in": "path", "required": true, "schema": { "type": "number" } },
+          { "name": "num2", "in": "path", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpQueryResponse" } } } },
+          "400": { "description": "Parámetros inválidos", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Ruta inválida o no encontrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+
+    "/restar": {
+      "get": {
+        "tags": ["Resta"],
+        "summary": "Resta por query params",
+        "description": "GET /restar?num1=&num2= en 127.0.0.1:3003",
+        "servers": [{ "url": "http://127.0.0.1:3003" }],
+        "parameters": [
+          { "name": "num1", "in": "query", "required": true, "schema": { "type": "number" } },
+          { "name": "num2", "in": "query", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpQueryResponse" } } } },
+          "400": { "description": "Parámetros inválidos", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Resta"],
+        "summary": "Resta por body JSON",
+        "description": "POST /restar en 127.0.0.1:3005",
+        "servers": [{ "url": "http://127.0.0.1:3005" }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpBodyRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpBodyResponse" } } } },
+          "400": { "description": "JSON o parámetros inválidos", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/restar/{num1}/{num2}": {
+      "get": {
+        "tags": ["Resta"],
+        "summary": "Resta por path params",
+        "description": "GET /restar/{num1}/{num2} en 127.0.0.1:3004",
+        "servers": [{ "url": "http://127.0.0.1:3004" }],
+        "parameters": [
+          { "name": "num1", "in": "path", "required": true, "schema": { "type": "number" } },
+          { "name": "num2", "in": "path", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpQueryResponse" } } } },
+          "400": { "description": "Parámetros inválidos", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Ruta inválida o no encontrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+
+    "/multiplicar": {
+      "get": {
+        "tags": ["Multiplicación"],
+        "summary": "Multiplicación por query params",
+        "description": "GET /multiplicar?num1=&num2= en 127.0.0.1:3006",
+        "servers": [{ "url": "http://127.0.0.1:3006" }],
+        "parameters": [
+          { "name": "num1", "in": "query", "required": true, "schema": { "type": "number" } },
+          { "name": "num2", "in": "query", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpQueryResponse" } } } },
+          "400": { "description": "Parámetros inválidos", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Multiplicación"],
+        "summary": "Multiplicación por body JSON",
+        "description": "POST /multiplicar en 127.0.0.1:3008",
+        "servers": [{ "url": "http://127.0.0.1:3008" }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpBodyRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpBodyResponse" } } } },
+          "400": { "description": "JSON o parámetros inválidos", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/multiplicar/{num1}/{num2}": {
+      "get": {
+        "tags": ["Multiplicación"],
+        "summary": "Multiplicación por path params",
+        "description": "GET /multiplicar/{num1}/{num2} en 127.0.0.1:3007",
+        "servers": [{ "url": "http://127.0.0.1:3007" }],
+        "parameters": [
+          { "name": "num1", "in": "path", "required": true, "schema": { "type": "number" } },
+          { "name": "num2", "in": "path", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpQueryResponse" } } } },
+          "400": { "description": "Parámetros inválidos", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Ruta inválida o no encontrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+
+    "/dividir": {
+      "get": {
+        "tags": ["División"],
+        "summary": "División por query params",
+        "description": "GET /dividir?num1=&num2= en 127.0.0.1:3009",
+        "servers": [{ "url": "http://127.0.0.1:3009" }],
+        "parameters": [
+          { "name": "num1", "in": "query", "required": true, "schema": { "type": "number" } },
+          { "name": "num2", "in": "query", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpQueryResponse" } } } },
+          "400": { "description": "Parámetros inválidos (incluye división por cero en body/path si tu MS lo valida)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Ruta no encontrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      },
+      "post": {
+        "tags": ["División"],
+        "summary": "División por body JSON",
+        "description": "POST /dividir en 127.0.0.1:3011",
+        "servers": [{ "url": "http://127.0.0.1:3011" }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpBodyRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpBodyResponse" } } } },
+          "400": { "description": "JSON o parámetros inválidos (incluye división por cero)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "405": { "description": "Método no permitido si se usa GET aquí", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/dividir/{num1}/{num2}": {
+      "get": {
+        "tags": ["División"],
+        "summary": "División por path params",
+        "description": "GET /dividir/{num1}/{num2} en 127.0.0.1:3010",
+        "servers": [{ "url": "http://127.0.0.1:3010" }],
+        "parameters": [
+          { "name": "num1", "in": "path", "required": true, "schema": { "type": "number" } },
+          { "name": "num2", "in": "path", "required": true, "schema": { "type": "number" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OpQueryResponse" } } } },
+          "400": { "description": "Parámetros inválidos (incluye división por cero)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "404": { "description": "Ruta inválida o no encontrada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OpQueryResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean", "example": true },
+          "Dato1Enviado": { "type": "number", "example": 10 },
+          "Dato2Enviado": { "type": "number", "example": 5 },
+          "resultado": { "type": "number", "example": 15 }
+        }
+      },
+      "OpBodyRequest": {
+        "type": "object",
+        "required": ["num1", "num2"],
+        "properties": {
+          "num1": { "type": "number", "example": 10 },
+          "num2": { "type": "number", "example": 5 }
+        }
+      },
+      "OpBodyResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean", "example": true },
+          "op": { "type": "string", "example": "sumar" },
+          "num1": { "type": "number", "example": 10 },
+          "num2": { "type": "number", "example": 5 },
+          "result": { "type": "number", "example": 15 }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean", "example": false },
+          "error": { "type": "string", "example": "Parámetros inválidos" }
+        }
+      }
+    }
+  }
+}

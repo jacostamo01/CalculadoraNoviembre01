@@ -1,0 +1,7 @@
+{
+  "name": "ms-suma-path",
+  "version": "1.0.0",
+  "main": "SumaPathParams.js",
+  "scripts": { "start": "node SumaPathParams.js" },
+  "dependencies": {}
+}

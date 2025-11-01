@@ -1,0 +1,7 @@
+{
+  "name": "ms-suma-query",
+  "version": "1.0.0",
+  "main": "SumaQueryParams.js",
+  "scripts": { "start": "node SumaQueryParams.js" },
+  "dependencies": {}
+}

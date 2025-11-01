@@ -1,0 +1,7 @@
+{
+  "name": "ms-resta-path",
+  "version": "1.0.0",
+  "main": "RestaPathParams.js",
+  "scripts": { "start": "node RestaPathParams.js" },
+  "dependencies": {}
+}

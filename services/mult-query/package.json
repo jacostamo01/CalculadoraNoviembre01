@@ -1,0 +1,7 @@
+{
+  "name": "ms-mult-query",
+  "version": "1.0.0",
+  "main": "MultiplicacionQueryParams.js",
+  "scripts": { "start": "node MultiplicacionQueryParams.js" },
+  "dependencies": {}
+}

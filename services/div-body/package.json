@@ -1,0 +1,7 @@
+{
+  "name": "ms-div-body",
+  "version": "1.0.0",
+  "main": "DivisionBodyParams.js",
+  "scripts": { "start": "node DivisionBodyParams.js" },
+  "dependencies": {}
+}

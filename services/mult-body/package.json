@@ -1,0 +1,7 @@
+{
+  "name": "ms-mult-query",
+  "version": "1.0.0",
+  "main": "MultiplicacionBodyParams.js",
+  "scripts": { "start": "node MultiplicacionBodyParams.js" },
+  "dependencies": {}
+}

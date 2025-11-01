@@ -1,0 +1,7 @@
+{
+  "name": "ms-div-query",
+  "version": "1.0.0",
+  "main": "DivisionQueryParams.js",
+  "scripts": { "start": "node DivisionQueryParams.js" },
+  "dependencies": {}
+}

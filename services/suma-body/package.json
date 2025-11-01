@@ -1,0 +1,7 @@
+{
+  "name": "ms-suma-body",
+  "version": "1.0.0",
+  "main": "SumaBodyParams.js",
+  "scripts": { "start": "node SumaBodyParams.js" },
+  "dependencies": {}
+}
