@@ -1,5 +1,5 @@
 {
-  "name": "ms-mult-query",
+  "name": "ms-mult-body",
   "version": "1.0.0",
   "main": "MultiplicacionBodyParams.js",
   "scripts": { "start": "node MultiplicacionBodyParams.js" },

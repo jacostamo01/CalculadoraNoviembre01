@@ -1,5 +1,5 @@
 {
-  "name": "ms-div-path",
+  "name": "ms-division-path",
   "version": "1.0.0",
   "main": "DivisionPathParams.js",
   "scripts": { "start": "node DivisionPathParams.js" },

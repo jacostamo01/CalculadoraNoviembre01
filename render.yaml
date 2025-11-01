@@ -141,10 +141,10 @@ services:
         value: production
 
   - type: web
-    name: ms-div-path
+    name: ms-division-path
     env: node
     plan: free
-    rootDir: services/div-path
+    rootDir: services/division-path
     buildCommand: "npm ci"
     startCommand: "node DivisionPathParams.js"
     autoDeploy: true
